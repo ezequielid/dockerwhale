@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: ezequiel
+      MYSQL_PASSWORD: ezequiel2406
+    ports:
+      - "3307:3307"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  apache:
+    image: debian:latest
+    command: bash -c "apt-get update && apt-get install -y apache2 && apache2-foreground"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./apache/www:/var/www/html
+      - ./apache/conf:/etc/apache2/sites-enabled
+
+  backup:
+    image: debian:latest
+    volumes:
+      - mysql_data:/mysql_data
+      - ./backup:/backup
+    command: bash -c "apt-get update && apt-get install -y cron && service cron start && tail -f /dev/null"
+
+volumes:
+  mysql_data:
